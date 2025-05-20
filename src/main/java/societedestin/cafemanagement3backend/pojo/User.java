@@ -1,13 +1,10 @@
 package societedestin.cafemanagement3backend.pojo;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "tablecafemanagement3")
@@ -32,8 +29,28 @@ public class User {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private PasswordResetToken resetToken;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Order> orders;
 
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore // Pour éviter la boucle infinie lors du JSON
+    private List<ToDoList> toDoList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore // Gérer la sérialisation de la relation côté User
+    private List<Product> products;
     public User() {}
 
     public User(String name,
@@ -49,6 +66,8 @@ public class User {
         this.status = status;
         this.role = role;
     }
+
+    // --- Getters & Setters ---
 
     public Long getId() {
         return id;
@@ -101,5 +120,13 @@ public class User {
     }
     public void setResetToken(PasswordResetToken resetToken) {
         this.resetToken = resetToken;
+    }
+
+    public List<ToDoList> getToDoList() {
+        return toDoList;
+    }
+
+    public void setToDoList(List<ToDoList> toDoList) {
+        this.toDoList = toDoList;
     }
 }
